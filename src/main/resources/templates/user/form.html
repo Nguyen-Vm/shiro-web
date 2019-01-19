@@ -9,11 +9,9 @@
 <h3 th:text="${userModel.title}"></h3>
 <form action="" th:action="@{/user/save}" method="post" th:object="${userModel.user}" >
     <input type="hidden" name="id" th:value="${userModel.user.id}">
-    名称：<br>
-    <input type="text" name="name" th:value="*{name}">
-    <br>
-    年龄：<br>
-    <input type="text" name="age" th:value="*{age}">
+    名称：<input type="text" name="name" th:value="*{name}"><br>
+    密码：<input type="password" name="password" th:value="*{password}"><br>
+    年龄：<input type="text" name="age" th:value="*{age}" ><br>
     <input type="submit" value="提交">
 </form>
 <!--<div th:replace="~{fragments/footer :: footer}">...</div>-->

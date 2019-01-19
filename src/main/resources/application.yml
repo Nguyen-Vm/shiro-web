@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://172.168.6.18:3306/test
+    url: jdbc:mysql://localhost:3306/shiro-web
     username: root
-    password: ostay_dev
+    password: Ruochu123
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database: mysql

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>订单管理</title>
+</head>
+<body>
+<h3 th:text="${orderModel.title}"></h3>
+<table border="1">
+    <thead>
+    <tr>
+        <td>ID</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${orderModel.orderList.size()} eq 0">
+        <td colspan="3">没有订单信息！！</td>
+    </tr>
+    <tr th:each="orderId : ${orderModel.orderList}">
+        <td th:text="${orderId}">1</td>
+    </tr>
+    </tbody>
+
+</table>
+</body>
+</html>

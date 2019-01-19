@@ -8,9 +8,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
+/**
+ * @author RWM
+ * @date 2019/1/20
+ */
 @Entity
-@Table(name = "user")
-public class User implements Serializable {
+@Table(name = "role")
+public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,37 +23,27 @@ public class User implements Serializable {
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "password", columnDefinition = "varchar(200) not null default '123456'")
-    private String password;
-
-    @Column(name = "age")
-    private int age;
-
-    public User() {
+    public Role() {
     }
 
-    public User(long id, String name, String password, int age) {
+    public Role(long id, String name) {
         this.id = id;
         this.name = name;
-        this.password = password;
-        this.age = age;
     }
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Role{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", age=" + age +
                 '}';
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -59,21 +53,5 @@ public class User implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 }

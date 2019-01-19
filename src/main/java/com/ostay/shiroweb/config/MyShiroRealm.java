@@ -1,5 +1,7 @@
 package com.ostay.shiroweb.config;
 
+import com.ostay.shiroweb.mapper.RoleToUserMapper;
+import com.ostay.shiroweb.mapper.UserMapper;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -8,13 +10,17 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class MyShiroRealm extends AuthorizingRealm {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private RoleToUserMapper roleToUserMapper;
 
     /**
      * 授权
@@ -31,16 +37,7 @@ public class MyShiroRealm extends AuthorizingRealm {
     }
 
     private Set<String> getRolesByUsername(String username) {
-        Set<String> jackRoles = new HashSet<>();
-        jackRoles.add("admin");
-        jackRoles.add("user");
-        Set<String> kateRoles = new HashSet<>();
-        kateRoles.add("user");
-
-        Map<String, Set<String>> accountRoles = new HashMap<>();
-        accountRoles.put("jack", jackRoles);
-        accountRoles.put("kate", kateRoles);
-        return accountRoles.get(username);
+        return roleToUserMapper.findByUsername(username);
     }
 
     /**
@@ -61,9 +58,6 @@ public class MyShiroRealm extends AuthorizingRealm {
     }
 
     private String getPasswordByUsername(String username) {
-        Map<String, String> account = new HashMap<>();
-        account.put("jack", "123456");
-        account.put("kate", "123456");
-        return account.get(username);
+        return userMapper.findPasswordByName(username);
     }
 }
