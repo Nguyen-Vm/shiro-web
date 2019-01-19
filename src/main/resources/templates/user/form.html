@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>form</title>
+</head>
+<body>
+<!--<div th:replace="fragments/header :: header">...</div>-->
+<h3 th:text="${userModel.title}"></h3>
+<form action="" th:action="@{/user/save}" method="post" th:object="${userModel.user}" >
+    <input type="hidden" name="id" th:value="${userModel.user.id}">
+    名称：<br>
+    <input type="text" name="name" th:value="*{name}">
+    <br>
+    年龄：<br>
+    <input type="text" name="age" th:value="*{age}">
+    <input type="submit" value="提交">
+</form>
+<!--<div th:replace="~{fragments/footer :: footer}">...</div>-->
+</body>
+</html>
