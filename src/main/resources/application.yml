@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/shiro-web
+    url: jdbc:mysql://172.168.6.18:3306/test
     username: root
-    password: Ruochu123
+    password: ostay_dev
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database: mysql
@@ -15,8 +15,7 @@ spring:
   thymeleaf:
     cache: false
     mode: LEGACYHTML5
-
-redis:
-  host: 127.0.0.1
-  port: 6379
-  password:
+  redis:
+    host: localhost
+    port: 6379
+    password:

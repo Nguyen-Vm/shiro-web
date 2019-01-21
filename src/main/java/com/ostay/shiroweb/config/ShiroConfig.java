@@ -6,6 +6,7 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
 import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class ShiroConfig {
     // session 在缓存工具中的时长
     private final int SESSION_CACHE_TIMEOUT_SECOND = 6 * 60 * 60;
 
+    // 用户的授权信息缓存时长
+    private final int AUTHZ_TIMEOUT_SECOND = 1 * 15 * 60;
+
     @Autowired
     private Environment environment;
 
@@ -36,11 +40,15 @@ public class ShiroConfig {
 
         Map<String, String> filterChainDefinitionMap = new HashMap<>();
         filterChainDefinitionMap.put("/logout", "logout");
-        filterChainDefinitionMap.put("/order/**", "authc, roles[admin]");
-        filterChainDefinitionMap.put("/**", "authc");
+
+        filterChainDefinitionMap.put("/resources/**", "anon");
+        filterChainDefinitionMap.put("/login", "anon");
+
+        filterChainDefinitionMap.put("/403", "authc, roles[user]");
+        filterChainDefinitionMap.put("/**", "authc, roles[admin]");
 
         shiroFilterFactoryBean.setLoginUrl("/login");
-        shiroFilterFactoryBean.setSuccessUrl("/index");
+        shiroFilterFactoryBean.setSuccessUrl("/");
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
@@ -51,7 +59,17 @@ public class ShiroConfig {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(shiroRealm());
         securityManager.setSessionManager(sessionManager());
+        securityManager.setCacheManager(redisCacheManager());
         return securityManager;
+    }
+
+    @Bean
+    public RedisCacheManager redisCacheManager() {
+        RedisCacheManager redisCacheManager = new RedisCacheManager();
+        redisCacheManager.setRedisManager(redisManager());
+        redisCacheManager.setKeyPrefix("SHIRO:CACHE:");
+        redisCacheManager.setExpire(AUTHZ_TIMEOUT_SECOND); // 权限信息缓存时长(s), 默认30分
+        return redisCacheManager;
     }
 
     @Bean
@@ -73,7 +91,9 @@ public class ShiroConfig {
 
         sessionManager.setSessionDAO(redisSessionDAO());
 
-        //设置session过期时间,默认为30分钟
+        // 设置session过期时间,默认为30分钟
+        // 为负数时表示永不超时，回话结束后失效，即浏览器关闭
+        // 单位是ms，转成s后为负数需要不大于-1000
         sessionManager.setGlobalSessionTimeout(SESSION_TIMEOUT_SECOND * 1000);
 
         // 是否在会话过期后会调用SessionDAO的delete方法删除会话 默认true
@@ -99,14 +119,13 @@ public class ShiroConfig {
     @Bean
     public RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
-        redisManager.setHost(environment.getProperty("redis.host"));
-        redisManager.setPort(environment.getProperty("redis.port", Integer.class));
-        String password = environment.getProperty("redis.password");
+        redisManager.setHost(environment.getProperty("spring.redis.host"));
+        redisManager.setPort(environment.getProperty("spring.redis.port", Integer.class));
+        String password = environment.getProperty("spring.redis.password");
         if (!StringUtils.isEmpty(password)) {
             redisManager.setPassword(password);
         }
         return redisManager;
     }
-
 
 }

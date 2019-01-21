@@ -1,13 +1,16 @@
 package com.ostay.shiroweb.controller;
 
+import com.ostay.shiroweb.dto.request.UserLoginReq;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -21,34 +24,35 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
-    public void login(HttpServletRequest request, Map<String, Object> map) {
+    public ModelAndView login(UserLoginReq req, HttpServletRequest request, Map<String, Object> map) {
+        if (request.getMethod().equals("GET")) {
+            return new ModelAndView("login");
+        }
         Subject subject = SecurityUtils.getSubject();
-        if (subject.isAuthenticated()) {
-            return;
+        if (!subject.isAuthenticated()) {
+            try {
+                UsernamePasswordToken token = new UsernamePasswordToken(req.getName(), req.getPassword());
+                subject.login(token);
+                return new ModelAndView("index");
+            } catch (Exception e) {
+                if (e instanceof UnknownAccountException || e instanceof IncorrectCredentialsException) {
+                    map.put("msg", "账号或密码不正确！");
+                }
+            }
         }
-        String exception = (String) request.getAttribute("shiroLoginFailure");
-        exception = exception == null ? "" : exception;
-        String msg;
-        if (UnknownAccountException.class.getName().equals(exception)) {
-            msg = "账号不存在";
-        } else if (IncorrectCredentialsException.class.getName().equals(exception)) {
-            msg = "密码不正确";
-        } else {
-            msg = exception;
-        }
-        map.put("msg", msg);
+        return new ModelAndView("login");
     }
 
     @GetMapping("/403")
-    public String unauthorizedRole(){
-        return "403";
+    public ModelAndView unauthorizedRole(){
+        return new ModelAndView("403");
     }
 
     @GetMapping("/logout")
-    public String login() {
+    public ModelAndView login() {
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
-        return "login";
+        return new ModelAndView("login");
     }
 
 }

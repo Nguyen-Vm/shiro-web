@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserMapper extends JpaRepository<User, Long> {
 
-    @Query(nativeQuery = true, value = "SELECT PASSWORD FROM User WHERE NAME = ?1")
-    String findPasswordByName(String name);
+    @Query(nativeQuery = true, value = "SELECT * FROM user WHERE name = ?1")
+    User findByName(String name);
 }

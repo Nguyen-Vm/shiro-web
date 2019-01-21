@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.io.Serializable;
 
 /**
  * @author RWM
@@ -15,7 +16,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(name = "role_to_user", uniqueConstraints = @UniqueConstraint(
         name = "unique_user_id_role_id", columnNames = {"user_id", "role_id"}))
-public class RoleToUser {
+public class RoleToUser implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
