@@ -8,6 +8,8 @@ public class UserLoginReq implements Serializable {
 
     private String password;
 
+    private boolean rememberMe;
+
     public UserLoginReq() {
     }
 
@@ -30,5 +32,13 @@ public class UserLoginReq implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }

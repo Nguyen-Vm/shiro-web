@@ -31,7 +31,8 @@ public class LoginController {
         Subject subject = SecurityUtils.getSubject();
         if (!subject.isAuthenticated()) {
             try {
-                UsernamePasswordToken token = new UsernamePasswordToken(req.getName(), req.getPassword());
+                // TOKEN构造器传入rememberMe，真正决定是否添加“记住我”的COOKIE
+                UsernamePasswordToken token = new UsernamePasswordToken(req.getName(), req.getPassword(), req.isRememberMe());
                 subject.login(token);
                 return new ModelAndView("index");
             } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.ostay.shiroweb.config;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.AbstractValidatingSessionManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
@@ -21,7 +22,7 @@ import java.util.Map;
 @Configuration
 public class ShiroConfig {
 
-    // 登录后session缓存时长(-1关闭浏览器后失效)
+    // 登录后 session 缓存时长(-1关闭浏览器后失效，设置“记住我”后，关闭浏览器不失效)
     private final int SESSION_TIMEOUT_SECOND = -1; //5 * 60 * 60;
 
     // session 在缓存工具中的时长
@@ -29,6 +30,9 @@ public class ShiroConfig {
 
     // 用户的授权信息缓存时长
     private final int AUTHZ_TIMEOUT_SECOND = 1 * 15 * 60;
+
+    // remember me cookie timeout
+    private final int REMEMBER_ME_COOKIE_TIMEOUT_SECOND = 1 * 24 * 60 * 60;
 
     @Autowired
     private Environment environment;
@@ -46,6 +50,8 @@ public class ShiroConfig {
 
         filterChainDefinitionMap.put("/403", "authc, roles[user]");
         filterChainDefinitionMap.put("/**", "authc, roles[admin]");
+        // 设置后，记住登录才生效
+        filterChainDefinitionMap.put("/**", "user, roles[admin]");
 
         shiroFilterFactoryBean.setLoginUrl("/login");
         shiroFilterFactoryBean.setSuccessUrl("/");
@@ -60,6 +66,7 @@ public class ShiroConfig {
         securityManager.setRealm(shiroRealm());
         securityManager.setSessionManager(sessionManager());
         securityManager.setCacheManager(redisCacheManager());
+        securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
     }
 
@@ -91,7 +98,7 @@ public class ShiroConfig {
 
         sessionManager.setSessionDAO(redisSessionDAO());
 
-        // 设置session过期时间,默认为30分钟
+        // 设置 session 过期时间,默认为30分钟
         // 为负数时表示永不超时，回话结束后失效，即浏览器关闭
         // 单位是ms，转成s后为负数需要不大于-1000
         sessionManager.setGlobalSessionTimeout(SESSION_TIMEOUT_SECOND * 1000);
@@ -126,6 +133,23 @@ public class ShiroConfig {
             redisManager.setPassword(password);
         }
         return redisManager;
+    }
+
+    /**
+     * 修改COOKIE属性
+     * @return
+     */
+    @Bean
+    public CookieRememberMeManager rememberMeManager() {
+        CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+
+        SimpleCookie cookie = new SimpleCookie("REMEMBER_COOKIE");
+        cookie.setPath("/");
+        cookie.setMaxAge(REMEMBER_ME_COOKIE_TIMEOUT_SECOND);
+        cookie.setHttpOnly(false);
+
+        rememberMeManager.setCookie(cookie);
+        return rememberMeManager;
     }
 
 }
